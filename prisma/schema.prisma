@@ -12,3 +12,96 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum UserRole {
+  FINANCEIRO
+  RATO_CAMERA
+  REGULAR
+  BIXO
+  ADMINISTRADOR
+}
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  year Int
+  role UserRole @default(REGULAR)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+
+  @@map("users")
+
+  TB_FIX_BILL_USER TB_FIX_BILL_USER[]
+  TB_DEBTS_USER TB_DEBTS_USER[]
+}
+
+model TB_FIX_BILLS {
+  id          Int       @id @default(autoincrement())
+  billTypeId  Int
+  month       DateTime
+  value       Float
+  due_date    DateTime
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relacionamento com TB_FIX_BILLS_TYPES
+  billType TB_FIX_BILLS_TYPES @relation(fields: [billTypeId], references: [id])
+
+  @@map("tb_fix_bills")
+  TB_FIX_BILL_USER TB_FIX_BILL_USER[]
+}
+
+model TB_FIX_BILLS_TYPES {
+  id          Int       @id @default(autoincrement())
+  bill_type   String    @unique
+  description String?
+  average     Float?
+
+  // Relacionamento com TB_FIX_BILLS
+  fixBills TB_FIX_BILLS[]
+
+  @@map("tb_fix_bills_types")
+}
+
+model TB_TRANSACTIONS {
+  id          Int       @id @default(autoincrement())
+  name        String
+  value       Float
+  date        DateTime
+  type        String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("tb_transactions")
+}
+
+model TB_FIX_BILL_USER {
+  id             Int       @id @default(autoincrement())
+  userId         String    @map("user_id")
+  billId         Int       @map("bill_id")
+  others         Float?    @default(0.0)
+  debts          Float?    @default(0.0)
+  totalPayable   Float     @map("total_payable")
+  payDay        DateTime?  @map("pay_day")
+  amount_paid    Float?    @default(0.0)
+  referenceMonth DateTime
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+  bill TB_FIX_BILLS @relation(fields: [billId], references: [id])
+
+  @@map("tb_fix_bill_user")
+}
+
+model TB_DEBTS_USER {
+  id               Int       @id @default(autoincrement())
+  userId           String   
+  value_debts      Float
+  payment_plan     String?
+  installment_value Float?
+
+  // Relacionamento com User
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("tb_debts_user")
+}

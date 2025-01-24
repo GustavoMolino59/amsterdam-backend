@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   postgres:
-    container_name: amstersystem-pg
+    container_name: amster_system_db
     image: postgres
     ports:
-      - 5432: 5432
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
