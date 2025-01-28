@@ -43,9 +43,10 @@ export class AuthenticateUsersUseCase {
     if (!isPasswordValid) {
       return left(new WrongCredentialsError());
     }
-
+    console.log(user);
     const accessToken = await this.encrypter.encrypt({
       sub: user.id.toString(),
+      role: user.role,
     });
 
     return right({
