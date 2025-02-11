@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { ZodValidationPipe } from '../../pipes/ZodValidationPipes';
 import { UserAlredyExistsError } from 'src/modules/users/application/errors/UserAlredyExistsError';
 import { AuthenticateUsersUseCase } from 'src/modules/users/application/use-cases/AuthenticateUser';
+import { Public } from 'src/infra/auth/public';
 
 const createAccountBodySchema = z.object({
   name: z.string(),
@@ -29,6 +30,7 @@ export class UserController {
   ) {}
 
   @Post('/create')
+  @Public()
   @HttpCode(201)
   @UsePipes(new ZodValidationPipe(createAccountBodySchema))
   async create(@Body() body: CreateAccountBodySchema) {
